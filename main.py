@@ -60,16 +60,29 @@ def ssh(connection_string, command, identity, port, command_args):
     print(res)
 
 
-@click.command(help='Will execute COMMAND via telnet')
+@click.command(context_settings={'ignore_unknown_options':True,})
 @click.argument('connection_string')
 @click.argument('command')
 @click.argument('command_args', nargs=-1, type=click.UNPROCESSED)
-def telnet(connection_string, command, command_args):
-    user, host = connection_string.split('@')
-    user, password = user.split(':')
+@click.password_option(confirmation_prompt=False, default='')
+def telnet(connection_string, command, password, command_args):
+    """ Will execute COMMAND via telnet
+
+    Please pass CONNECTION_STRING in the followin format: <username>@<host>
+
+    COMMAND: command to execute
+
+    COMMAND_ARGS: params, passed to COMMAND, please prepend them with "--"\n
+    """
+    try:
+        user, host = connection_string.split('@')
+    except ValueError:
+        click.echo('connection_string must be in user@host format')
+        return None
+
     executor = TelnetExecutor(host, user, password)
-    res = json_repr(*executor.execute(command))
-    print(res)
+    res = json_repr(*executor.execute(command, parameters=command_args))
+    click.echo(res)
 
 
 # TODO: Don't like violation of DRY:
