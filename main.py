@@ -125,7 +125,6 @@ def telnet(connection_string, command, password, command_args):
     click.echo(res)
 
 
-# TODO: Don't like violation of DRY:
 cli.add_command(local)
 cli.add_command(ssh)
 cli.add_command(telnet)
