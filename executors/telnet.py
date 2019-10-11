@@ -133,7 +133,7 @@ class TelnetExecutor(BaseExecutor):
         please set `prompt` parameter of the initializer to lambda.
         Its result will be encoded and passed as regex to look for new prompts.
         """
-        return f"\\s*{self.user}.*$"
+        return f"\\s*{self.user}.*?\\$"
 
     def __del__(self):
         self.tn.close()
