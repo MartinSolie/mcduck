@@ -20,6 +20,18 @@ class TelnetExecutor(BaseExecutor):
 
     def __init__(self, host, user, password, port=None, prompt=None,
                  encoding=DEFAULT_ENCODING):
+        """
+        :host:      - either domain name or IP addres of the server,
+                      without port
+        :user:      - remote account to be logged into
+        :password:  - password for remote account to be logged into
+        :port:      - port to connect to, if not set defaults to
+                      telnetlib.TELNET_PORT
+        :prompt:    - function, which must return a string, to be used as
+                      regex to define borders of the call
+        :encoding:  - encoding to be used to encode and decode messages
+                      to/from the remote shell
+        """
         if not user or not password:
             raise ValueError('Userless/passwordless logins are prohibited')
 
