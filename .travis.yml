@@ -1,0 +1,13 @@
+dist: bionic
+addons:
+  apt:
+    source:
+    - docker-bionic
+    packages:
+    - docker
+services:
+- docker
+script:
+- docker build -t martinsolie/mcduck-test -f .ci/self_contained_test.dockerfile
+- docker run --rm martinsolie/mcduck-test
+
