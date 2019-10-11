@@ -1,6 +1,8 @@
 import base64
 import paramiko
 
+from socket import gaierror
+
 from executors.base import BaseExecutor
 
 
@@ -31,14 +33,23 @@ class SSHExecutor(BaseExecutor):
         self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
     def connect(self):
-        self.client.connect(
-            self.host,
-            port=self.port,
-            username=self.user,
-            password=self.password,
-            key_filename=self.key_path,
-            passphrase=self.passphrase,
-        )
+        try:
+            self.client.connect(
+                self.host,
+                port=self.port,
+                username=self.user,
+                password=self.password,
+                key_filename=self.key_path,
+                passphrase=self.passphrase,
+            )
+        except gaierror as err:
+            raise ValueError(f"Failed to connect to {self.host}:\n{err}")
+        except (paramiko.ssh_exception.AuthenticationException, 
+                paramiko.ssh_exception.BadAuthenticationType,
+                paramiko.ssh_exception.PartialAuthentication,
+                paramiko.ssh_exception.PasswordRequiredException) as err:
+            raise ValueError(f"Failder to auth at {self.host}:\n{err}")
+
 
     def disconnect(self):
         self.client.close()
