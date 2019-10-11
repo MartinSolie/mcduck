@@ -61,6 +61,10 @@ class SSHExecutor(BaseExecutor):
         :parameters: tuple, params for command
         :return: result code, stdout, stderr
         """
+        transport = self.client.get_transport()
+        if transport is None or not transport.is_active():
+            raise ValueError(f"Transport must be opened to execute commands")
+
         if parameters:
             command = command + ' ' + ' '.join(parameters)
 
