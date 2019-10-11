@@ -16,21 +16,23 @@ class TelnetExecutor(BaseExecutor):
     """
     DEFAULT_ENCODING = 'ascii'
 
-    def __init__(self, host, user, password, port=None, prompt=None):
+    def __init__(self, host, user, password, port=None, prompt=None,
+                 encoding=DEFAULT_ENCODING):
         if not user or not password:
             raise ValueError('Userless/passwordless logins are prohibited')
 
         port = port or telnetlib.TELNET_PORT
         self.prompt = prompt or self._default_get_prompt
         self.user = user
+        self.encoding = encoding
 
         self.tn = telnetlib.Telnet(host)
-        self.tn.write(self.user.encode(TelnetExecutor.DEFAULT_ENCODING) + b'\n')
+        self.tn.write(self.user.encode(self.encoding) + b'\n')
         self.tn.read_until(b'Password: ')
-        self.tn.write(password.encode(TelnetExecutor.DEFAULT_ENCODING) + b'\n')
+        self.tn.write(password.encode(self.encoding) + b'\n')
         matched_index, _, _ = self.tn.expect([
-            self.prompt().encode(TelnetExecutor.DEFAULT_ENCODING),
-            'Login incorrect'.encode(TelnetExecutor.DEFAULT_ENCODING),
+            self.prompt().encode(self.encoding),
+            'Login incorrect'.encode(self.encoding),
         ])
         if matched_index != 0:
             # 'Login incorrect' or other was found
@@ -105,12 +107,12 @@ class TelnetExecutor(BaseExecutor):
     def _echo_variable(self, variable):
         """Executes `echo ${variable}` in the remote shell and reads output"""
         self.tn.write(f'echo ${variable}\n'
-            .encode(TelnetExecutor.DEFAULT_ENCODING))
+            .encode(self.encoding))
 
         _, matched, read = self.tn.expect([
-            self.prompt().encode(TelnetExecutor.DEFAULT_ENCODING)
+            self.prompt().encode(self.encoding)
         ])
-        output = read.decode(TelnetExecutor.DEFAULT_ENCODING)
+        output = read.decode(self.encoding)
         # We don't need the next prompt in our output
         result = output[:matched.start(0)]
         return result
@@ -118,9 +120,9 @@ class TelnetExecutor(BaseExecutor):
     def _write_ignore_output(self, command):
         """Writes command to the remote shell reads output up to the next
         prompt, ignores everything read (reading is just to move cursor)"""
-        self.tn.write(command.encode(TelnetExecutor.DEFAULT_ENCODING))
+        self.tn.write(command.encode(self.encoding))
         self.tn.expect([
-            self.prompt().encode(TelnetExecutor.DEFAULT_ENCODING)
+            self.prompt().encode(self.encoding)
         ])
 
     def _default_get_prompt(self):
