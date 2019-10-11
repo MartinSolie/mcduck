@@ -136,4 +136,7 @@ class TelnetExecutor(BaseExecutor):
         return f"\\s*{self.user}.*?\\$"
 
     def __del__(self):
-        self.tn.close()
+        try:
+            self.tn.close()
+        except AttributeError:
+            pass
