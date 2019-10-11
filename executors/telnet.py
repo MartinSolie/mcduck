@@ -1,5 +1,7 @@
 import telnetlib
 
+from socket import gaierror
+
 from executors.base import BaseExecutor
 
 class TelnetExecutor(BaseExecutor):
@@ -26,7 +28,12 @@ class TelnetExecutor(BaseExecutor):
         self.user = user
         self.encoding = encoding
 
-        self.tn = telnetlib.Telnet(host)
+        try:
+            self.tn = telnetlib.Telnet(host)
+        except gaierror as err:
+            # get address info error, usually means we cannot resolve
+            raise ValueError(f"Failed to connect to {host}:\n{err}")
+
         self.tn.write(self.user.encode(self.encoding) + b'\n')
         self.tn.read_until(b'Password: ')
         self.tn.write(password.encode(self.encoding) + b'\n')
