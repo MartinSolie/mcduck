@@ -8,38 +8,6 @@ from executors.local import LocalExecutor
 from executors.telnet import TelnetExecutor
 
 
-def json_repr(code, output, err):
-    return simplejson.dumps({
-        'code': code,
-        'stdout': output,
-        'stderr': err,
-    })
-
-
-def parse_connection_string(connection_string):
-    """ Will parse connection string into user, password and host objects """
-    user = None
-    password = None
-    host = None
-
-    first_col_index = connection_string.find(':')
-    last_at_index = connection_string.rfind('@')
-
-    if last_at_index == -1:
-        # This means that there is no username nor password, only host
-        return None, None, connection_string
-
-    host = connection_string[last_at_index+1:]
-
-    if first_col_index != -1:
-        user = connection_string[:first_col_index]
-        password = connection_string[first_col_index+1:last_at_index]
-    else:
-        user = connection_string[:last_at_index]
-
-    return user, password, host
-
-
 @click.group()
 def cli():
     pass
@@ -123,6 +91,38 @@ def telnet(connection_string, command, password, command_args):
 
     res = json_repr(*executor.execute(command, parameters=command_args))
     click.echo(res)
+
+
+def json_repr(code, output, err):
+    return simplejson.dumps({
+        'code': code,
+        'stdout': output,
+        'stderr': err,
+    })
+
+
+def parse_connection_string(connection_string):
+    """ Will parse connection string into user, password and host objects """
+    user = None
+    password = None
+    host = None
+
+    first_col_index = connection_string.find(':')
+    last_at_index = connection_string.rfind('@')
+
+    if last_at_index == -1:
+        # This means that there is no username nor password, only host
+        return None, None, connection_string
+
+    host = connection_string[last_at_index+1:]
+
+    if first_col_index != -1:
+        user = connection_string[:first_col_index]
+        password = connection_string[first_col_index+1:last_at_index]
+    else:
+        user = connection_string[:last_at_index]
+
+    return user, password, host
 
 
 cli.add_command(local)
