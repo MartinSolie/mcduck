@@ -19,7 +19,12 @@ def cli():
 def local(command, command_args):
     """ Will execute COMMAND locally """
     executor = LocalExecutor()
-    res = json_repr(*executor.execute(command, command_args))
+    try:
+        res = json_repr(*executor.execute(command, command_args))
+    except FileNotFoundError:
+        click.echo(f"Could not find {command}")
+        return None
+
     click.echo(res)
 
 
